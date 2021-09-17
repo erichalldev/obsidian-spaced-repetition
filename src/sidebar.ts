@@ -57,30 +57,30 @@ export class ReviewQueueListView extends ItemView {
                 deckCollapsed,
                 false,
                 deck
-            ).getElementsByClassName("nav-folder-children")[0] as HTMLElement;
+            )//.getElementsByClassName("nav-folder-children")[0] as HTMLElement;
 
             if (deck.newNotes.length > 0) {
-                const newNotesFolderEl: HTMLElement = this.createRightPaneFolder(
-                    deckFolderEl,
-                    t("NEW"),
-                    !deck.activeFolders.has(t("NEW")),
-                    deckCollapsed,
-                    deck
-                );
+                // const newNotesFolderEl: HTMLElement = this.createRightPaneFolder(
+                //     deckFolderEl,
+                //     t("NEW"),
+                //     !deck.activeFolders.has(t("NEW")),
+                //     deckCollapsed,
+                //     deck
+                // );
 
                 for (const newFile of deck.newNotes) {
                     const fileIsOpen = activeFile && newFile.path === activeFile.path;
                     if (fileIsOpen) {
                         deck.activeFolders.add(deck.deckName);
                         deck.activeFolders.add(t("NEW"));
-                        this.changeFolderIconToExpanded(newNotesFolderEl);
+                        // this.changeFolderIconToExpanded(newNotesFolderEl);
                         this.changeFolderIconToExpanded(deckFolderEl);
                     }
                     this.createRightPaneFile(
-                        newNotesFolderEl,
+                        deckFolderEl,
                         newFile,
                         fileIsOpen,
-                        !deck.activeFolders.has(t("NEW")),
+                        deckCollapsed,//deck.activeFolders.has(t("NEW")),
                         deck,
                         this.plugin,
                     );
@@ -95,46 +95,46 @@ export class ReviewQueueListView extends ItemView {
                 const maxDaysToRender: number = this.plugin.data.settings.maxNDaysNotesReviewQueue;
 
                 for (const sNote of deck.scheduledNotes) {
-                    if (sNote.dueUnix != currUnix) {
-                        const nDays: number = Math.ceil((sNote.dueUnix - now) / (24 * 3600 * 1000));
+                    // if (sNote.dueUnix != currUnix) {
+                    //     const nDays: number = Math.ceil((sNote.dueUnix - now) / (24 * 3600 * 1000));
 
-                        if (nDays > maxDaysToRender) {
-                            break;
-                        }
+                    //     if (nDays > maxDaysToRender) {
+                    //         break;
+                    //     }
 
-                        if (nDays === -1) {
-                            folderTitle = t("YESTERDAY");
-                        } else if (nDays === 0) {
-                            folderTitle = t("TODAY");
-                        } else if (nDays === 1) {
-                            folderTitle = t("TOMORROW");
-                        } else {
-                            folderTitle = new Date(sNote.dueUnix).toDateString();
-                        }
+                    //     if (nDays === -1) {
+                    //         folderTitle = t("YESTERDAY");
+                    //     } else if (nDays === 0) {
+                    //         folderTitle = t("TODAY");
+                    //     } else if (nDays === 1) {
+                    //         folderTitle = t("TOMORROW");
+                    //     } else {
+                    //         folderTitle = new Date(sNote.dueUnix).toDateString();
+                    //     }
 
-                        schedFolderEl = this.createRightPaneFolder(
-                            deckFolderEl,
-                            folderTitle,
-                            !deck.activeFolders.has(folderTitle),
-                            deckCollapsed,
-                            deck
-                        );
-                        currUnix = sNote.dueUnix;
-                    }
+                    //     schedFolderEl = this.createRightPaneFolder(
+                    //         deckFolderEl,
+                    //         folderTitle,
+                    //         !deck.activeFolders.has(folderTitle),
+                    //         deckCollapsed,
+                    //         deck
+                    //     );
+                    //     currUnix = sNote.dueUnix;
+                    // }
 
                     const fileIsOpen = activeFile && sNote.note.path === activeFile.path;
                     if (fileIsOpen) {
                         deck.activeFolders.add(deck.deckName);
-                        deck.activeFolders.add(folderTitle);
-                        this.changeFolderIconToExpanded(schedFolderEl);
+                        // deck.activeFolders.add(folderTitle);
+                        // this.changeFolderIconToExpanded(schedFolderEl);
                         this.changeFolderIconToExpanded(deckFolderEl);
                     }
 
                     this.createRightPaneFile(
-                        schedFolderEl,
+                        deckFolderEl,
                         sNote.note,
                         fileIsOpen,
-                        !deck.activeFolders.has(folderTitle),
+                        deckCollapsed,//!deck.activeFolders.has(folderTitle),
                         deck,
                         this.plugin,
                     );
@@ -240,6 +240,8 @@ export class ReviewQueueListView extends ItemView {
 
     private changeFolderIconToExpanded(folderEl: HTMLElement): void {
         const collapseIconEl = folderEl.find("div.nav-folder-collapse-indicator");
-        (collapseIconEl.childNodes[0] as HTMLElement).style.transform = "";
+        if (collapseIconEl?.childNodes?.length) {
+            (collapseIconEl.childNodes[0] as HTMLElement).style.transform = "";
+        }
     }
 }

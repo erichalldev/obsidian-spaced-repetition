@@ -214,6 +214,9 @@ export default class SRPlugin extends Plugin {
     }
 
     async sync(): Promise<void> {
+        // save old review decks to maintain expanded/collapsed state
+        const oldReviewDecks = { ...this.reviewDecks };
+
         // reset notes stuff
         graph.reset();
         this.easeByPath = {};
@@ -297,7 +300,11 @@ export default class SRPlugin extends Plugin {
                     )
                 ) {
                     if (!Object.prototype.hasOwnProperty.call(this.reviewDecks, tag)) {
-                        this.reviewDecks[tag] = new ReviewDeck(tag);
+                        if (Object.prototype.hasOwnProperty.call(oldReviewDecks, tag)) {
+                            this.reviewDecks[tag] = new ReviewDeck(tag, oldReviewDecks[tag].activeFolders);
+                        } else {
+                            this.reviewDecks[tag] = new ReviewDeck(tag);
+                        }
                     }
                     shouldIgnore = false;
                     break;
@@ -466,11 +473,7 @@ export default class SRPlugin extends Plugin {
         } else {
             interval = frontmatter["sr-interval"];
             ease = frontmatter["sr-ease"];
-            delayBeforeReview =
-                now -
-                window
-                    .moment(frontmatter["sr-due"], ["YYYY-MM-DD", "DD-MM-YYYY", "ddd MMM DD YYYY"])
-                    .valueOf();
+            delayBeforeReview = 0;
         }
 
         const schedObj: Record<string, number> = schedule(

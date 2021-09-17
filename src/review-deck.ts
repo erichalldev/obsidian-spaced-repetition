@@ -10,24 +10,26 @@ export class ReviewDeck {
     public activeFolders: Set<string>;
     public dueNotesCount = 0;
 
-    constructor(name: string) {
+    constructor(name: string, activeFolders: Set<string> | undefined = undefined) {
         this.deckName = name;
-        this.activeFolders = new Set([this.deckName, t("TODAY")]);
+        if (activeFolders !== undefined) {
+            this.activeFolders = activeFolders;
+        }
+        else {
+            this.activeFolders = new Set([this.deckName, t("TODAY")]);
+        }
+
     }
 
     public sortNotes(pageranks: Record<string, number>): void {
         // sort new notes by importance
         this.newNotes = this.newNotes.sort(
-            (a: TFile, b: TFile) => (pageranks[b.path] || 0) - (pageranks[a.path] || 0)
+            (a: TFile, b: TFile) => a.stat.ctime - b.stat.ctime
         );
 
         // sort scheduled notes by date & within those days, sort them by importance
         this.scheduledNotes = this.scheduledNotes.sort((a: SchedNote, b: SchedNote) => {
-            const result = a.dueUnix - b.dueUnix;
-            if (result != 0) {
-                return result;
-            }
-            return (pageranks[b.note.path] || 0) - (pageranks[a.note.path] || 0);
+            return  a.dueUnix - b.dueUnix;
         });
     }
 }
